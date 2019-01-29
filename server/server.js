@@ -13,18 +13,32 @@ var io = socketIO(server);
 io.on("connection", (socket) => {
     console.log("New user connected");
 
-    socket.on("disconnect", () => {
-        console.log("All user are offline");
+    socket.emit("Welcome", {
+        from: "Admin",
+        text: "Welcome to the chat app!"
     })
 
-    socket.emit("newMessage", {
-        from: "Mike",
-        text: "Hey, what's going on today?",
-        createAt: 123
-    });
+    socket.broadcast.emit("hasJoin", {
+        from: "Admin",
+        text: "A new user has joined"
+    })
 
-    socket.on("createMessage", (newMessage) => {
-        console.log("createmsg", newMessage);
+    socket.on("createMessage", (message) => {
+        console.log("createMessage", message);
+        io.emit("newMessage", {
+            from: message.from,
+            text: message.text,
+            createdAt: new Date().getTime()
+        });
+        // socket.broadcast.emit("newMessage", {
+        //     from: message.from,
+        //     text: message.text,
+        //     createdAt: new Date().getTime()
+        // });
+    })
+
+    socket.on("disconnect", () => {
+        console.log("All user are offline");
     })
 });
 
