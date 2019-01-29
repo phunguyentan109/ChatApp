@@ -16,7 +16,17 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
         console.log("All user are offline");
     })
-})
+
+    socket.emit("newMessage", {
+        from: "Mike",
+        text: "Hey, what's going on today?",
+        createAt: 123
+    });
+
+    socket.on("createMessage", (newMessage) => {
+        console.log("createmsg", newMessage);
+    })
+});
 
 app.use(express.static(publicPath));
 
