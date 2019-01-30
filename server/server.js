@@ -13,13 +13,14 @@ var io = socketIO(server);
 
 io.on("connection", (socket) => {
 
-    socket.emit("Welcome", generateMessage("Admin", "Welcome to the chat app"));
+    socket.emit("newMessage", generateMessage("Admin", "Welcome to the chat app"));
 
     socket.broadcast.emit("hasJoin", generateMessage("Admin", "New user has joined"));
 
-    socket.on("createMessage", ({from, text}) => {
+    socket.on("createMessage", ({from, text}, cb) => {
         console.log("createMessage", {from, text});
         io.emit("newMessage", generateMessage(from, text));
+        cb()
     })
 
     socket.on("disconnect", () => {
