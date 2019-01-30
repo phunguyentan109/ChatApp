@@ -1,13 +1,16 @@
 var socket = io();
 
 // JQuery handling
-$("#message-form").on("submit", (e) => {
+let txtForm = $("#message-form");
+let txtbox = $("[name=message]");
+
+txtForm.on("submit", (e) => {
     e.preventDefault();
 
     socket.emit("createMessage", {
         from: "User",
-        text: $('[name=message]').val()
-    }, () => console.log("[Got it]"));
+        text: txtbox.val()
+    }, () => txtbox.val(""));
 })
 
 // Socket handling
@@ -40,8 +43,14 @@ locationButton.on("click", () => {
         return alert("Geolocation is not supported by your browser!");
     }
 
+    locationButton.attr("disabled", "disabled").text("Sending location...");
+
     navigator.geolocation.getCurrentPosition((position) => {
+        locationButton.removeAttr("disabled").text("Send location");
         const {latitude, longitude} = position.coords;
         socket.emit("createLocationMessage", {latitude, longitude});
-    }, () => alert("Unable to fetch location."))
+    }, () => {
+        locationButton.removeAttr("disabled").text("Send location");
+        alert("Unable to fetch location.");
+    })
 })
