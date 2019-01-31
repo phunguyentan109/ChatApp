@@ -1,6 +1,21 @@
 var socket = io();
 
 // JQuery handling
+const scrollToBottom = () => {
+    let messages = $("#messages");
+    let newMessage = messages.children("li:last-child");
+
+    let clientHeight = messages.prop("clientHeight");
+    let scrollTop = messages.prop("scrollTop");
+    let scrollHeight = messages.prop("scrollHeight");
+    let newMessageHeight = newMessage.innerHeight();
+    let secondNewMessageHeight = newMessage.prev().innerHeight();
+
+    if(clientHeight + scrollTop + newMessageHeight + secondNewMessageHeight >= scrollHeight){
+        messages.scrollTop(scrollHeight);
+    }
+}
+
 let txtForm = $("#message-form");
 let txtbox = $("[name=message]");
 
@@ -25,11 +40,13 @@ socket.on("disconnect", () => {
 socket.on("newMessage", ({from, text, createdAt}) => {
     let formattedTime = moment(createdAt).format("H:mm a");
     $("#messages").append(messageTemp(from, text, formattedTime));
+    scrollToBottom();
 });
 
 socket.on("newLocationMessage", ({from, url, createdAt}) => {
     let formattedTime = moment(createdAt).format("H:mm a");
     $("#messages").append(locationTemp(from, url, formattedTime));
+    scrollToBottom();
 })
 
 let locationButton = $("#send-location");
