@@ -24,19 +24,12 @@ socket.on("disconnect", () => {
 
 socket.on("newMessage", ({from, text, createdAt}) => {
     let formattedTime = moment(createdAt).format("H:mm a");
-    let li = $("<li></li>");
-    li.text(`${from} ${formattedTime}: ${text}`);
-    $("#messages").append(li);
+    $("#messages").append(messageTemp(from, text, formattedTime));
 });
 
-socket.on("newLocationMessage", (message) => {
-    let formattedTime = moment(message.createdAt).format("H:mm a");
-    let li = $(`<li></li>`);
-    let a = $(`<a target="_blank">My current location</a>`);
-    li.text(`${message.from} ${formattedTime}: `);
-    a.attr('href', message.url);
-    li.append(a);
-    $("#messages").append(li);
+socket.on("newLocationMessage", ({from, url, createdAt}) => {
+    let formattedTime = moment(createdAt).format("H:mm a");
+    $("#messages").append(locationTemp(from, url, formattedTime));
 })
 
 let locationButton = $("#send-location");
@@ -56,3 +49,32 @@ locationButton.on("click", () => {
         alert("Unable to fetch location.");
     })
 })
+
+// Render html
+const messageTemp = (from, text, createdAt) => {
+    return $(`
+        <li class="message">
+            <div class="message__title">
+                <h4>${from}</h4>
+                <span>${createdAt}</span>
+            </div>
+            <div class="message__body">
+                <p>${text}</p>
+            </div>
+        </li>
+    `)
+}
+
+const locationTemp = (from, url, createdAt) => {
+    return $(`
+        <li class="message">
+            <div class="message__title">
+                <h4>${from}</h4>
+                <span>${createdAt}</span>
+            </div>
+            <div class="message__body">
+                <a href="${url}" target="_blank">My current location</a>
+            </div>
+        </li>
+    `)
+}
