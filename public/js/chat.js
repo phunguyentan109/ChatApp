@@ -30,7 +30,16 @@ txtForm.on("submit", (e) => {
 
 // Socket handling
 socket.on("connect", () => {
-    console.log("Connected to server");
+    let params = $.deparam(window.location.search);
+
+    socket.emit("join", params, (err) => {
+        if(err) {
+            alert(err);
+            window.location.href = "/";
+        } else {
+            console.log("No error");
+        }
+    })
 });
 
 socket.on("disconnect", () => {
