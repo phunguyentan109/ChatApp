@@ -46,6 +46,10 @@ socket.on("disconnect", () => {
     console.log("Disconnected from server");
 });
 
+socket.on("updateUserList", (users) => {
+    console.log("List", users);
+})
+
 socket.on("newMessage", ({from, text, createdAt}) => {
     let formattedTime = moment(createdAt).format("H:mm a");
     $("#messages").append(messageTemp(from, text, formattedTime));
@@ -56,6 +60,14 @@ socket.on("newLocationMessage", ({from, url, createdAt}) => {
     let formattedTime = moment(createdAt).format("H:mm a");
     $("#messages").append(locationTemp(from, url, formattedTime));
     scrollToBottom();
+})
+
+socket.on("updateUserList", (users) => {
+    let ol = $(`<ol></ol>`);
+    users.forEach(user => {
+        ol.append($("<li></li>").text(user));
+    })
+    $("#users").html(ol);
 })
 
 let locationButton = $("#send-location");
