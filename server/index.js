@@ -1,17 +1,22 @@
 const express = require("express");
-const socketIO = require("socket.io");
 const http = require("http");
 const port = process.env.PORT || 8080;
 const { generateMessage, generateLocationMessage } = require("./utils/message");
 const { isRealString } = require("./utils/validation");
 const { Users } = require("./utils/users");
+const { Server } = require("socket.io");
 
 const app = express();
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
 
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
+
 const users = new Users();
 
 io.on("connection", (socket) => {
@@ -72,8 +77,8 @@ io.on("connection", (socket) => {
   });
 });
 
-app.get("/", (req, res) => res.render("index"));
+// app.get("/", (req, res) => res.render("index"));
 
-app.get("/chat", (req, res) => res.render("chat"));
+// app.get("/chat", (req, res) => res.render("chat"));
 
 server.listen(port, () => console.log(`Server is running on port ${port}`));
