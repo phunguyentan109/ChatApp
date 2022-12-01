@@ -5,9 +5,14 @@ const { generateMessage, generateLocationMessage } = require("./utils/message");
 const { isRealString } = require("./utils/validation");
 const { Users } = require("./utils/users");
 const { Server } = require("socket.io");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
 const app = express();
-app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(cors());
+
 app.use(express.static(__dirname + "/public"));
 
 const server = http.createServer(app);
@@ -20,31 +25,28 @@ const io = new Server(server, {
 const users = new Users();
 
 io.on("connection", (socket) => {
-  socket.on("join", (params, callback) => {
-    if (!isRealString(params.name) || !isRealString(params.room)) {
-      callback("Name and room name are required.");
-    }
-
+  socket.on("join", (params) => {
     socket.join(params.room);
+
     users.removeUser(socket.id);
     users.addUser(socket.id, params.name, params.room);
 
     io.to(params.room).emit("updateUserList", users.getUserList(params.room));
+
     socket.emit(
       "newMessage",
       generateMessage("Admin", "Welcome to the chat app")
     );
+
     socket.broadcast
       .to(params.room)
       .emit(
         "newMessage",
         generateMessage("Admin", `${params.name} has joined.`)
       );
-
-    callback();
   });
 
-  socket.on("createMessage", (message, cb) => {
+  socket.on("createMessage", (message) => {
     let user = users.getUser(socket.id);
     if (user && isRealString(message.text)) {
       io.to(user.room).emit(
@@ -52,7 +54,6 @@ io.on("connection", (socket) => {
         generateMessage(user.name, message.text)
       );
     }
-    cb();
   });
 
   socket.on("createLocationMessage", ({ latitude, longitude }) => {
@@ -77,8 +78,16 @@ io.on("connection", (socket) => {
   });
 });
 
-// app.get("/", (req, res) => res.render("index"));
+app.post("/login", (req, res) => {
+  const { name, room } = req.body;
 
-// app.get("/chat", (req, res) => res.render("chat"));
+  if (!name || !room) {
+    return res.json({ error: "Name and room name are required." });
+  }
+
+  return res
+    .status(200)
+    .json({ name, room, roles: { "perm.chat": true, "perm.about": true } });
+});
 
 server.listen(port, () => console.log(`Server is running on port ${port}`));

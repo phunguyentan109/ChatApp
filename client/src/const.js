@@ -1,32 +1,30 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom'
-import Login from './views/Login'
-import Chat from './views/Chat/Loader'
+import Login from 'views/Login'
+import Chat from 'views/Chat/Loader'
 
 export const SESSION_AUTH = 'spwSession'
 
-const allRouters = [
+export const ROUTE_PERMISSION = {
+  login: 'perm.login',
+  chat: 'perm.chat',
+  about: 'perm.about',
+}
+
+export const allRouters = [
   {
     path: '/',
     element: <Login />,
+    notFoundRedirect: true,
+    permission: ROUTE_PERMISSION.login,
   },
   {
     path: '/chat',
     element: <Chat />,
+    permission: ROUTE_PERMISSION.chat,
+    notFoundRedirect: true,
   },
   {
     path: '/about',
     element: <div>About</div>,
-  },
-  {
-    path: '*',
-    element: <Navigate to='/chat' replace />,
+    permission: ROUTE_PERMISSION.about,
   },
 ]
-
-export const guestRouters = createBrowserRouter(
-  allRouters.filter((r) => r.path === '/')
-)
-
-export const chatRouters = createBrowserRouter(
-  allRouters.filter((r) => r.path !== '/')
-)

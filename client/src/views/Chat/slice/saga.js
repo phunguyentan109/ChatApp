@@ -1,20 +1,27 @@
-import { takeLatest, take, call, put, cancelled } from 'redux-saga/effects'
-import { closeSocketAction, initSocketAction } from './action'
+import { call, put, take, takeLatest, select } from 'redux-saga/effects'
+import {
+  closeSocketAction,
+  initSocketAction,
+  sendMessageAction,
+} from './action'
 import { io } from 'socket.io-client'
 import { eventChannel } from 'redux-saga'
-import { receiveMessage } from './index'
+import { receiveMessage, updateUsers } from './index'
+import { selectApp } from 'redux/selector'
 
 function createSocketChannel(socket, user) {
   return eventChannel((emit) => {
-    const onConnect = () => socket.emit('join', user)
+    socket.on('connect', () => socket.emit('join', user))
 
-    const onReceiveMessage = (message) => emit(receiveMessage(message))
+    socket.on('error', (err) => emit(err))
 
-    const onError = (err) => emit(err)
+    socket.on('newMessage', (message) => {
+      emit(receiveMessage(message))
+    })
 
-    socket.on('connect', onConnect)
-    socket.on('error', onError)
-    socket.on('newMessage', onReceiveMessage)
+    socket.on('updateUserList', (users) => {
+      emit(updateUsers(users))
+    })
 
     return () => {
       socket.removeAllListeners()
@@ -22,26 +29,38 @@ function createSocketChannel(socket, user) {
   })
 }
 
-function* initActionSaga(data) {
-  const socket = io('http://locahost:8080')
+function* initSocketSaga() {
+  try {
+    const socket = io('http://localhost:8080')
 
-  const socketChannel = yield call(createSocketChannel, socket, data)
+    const data = yield select(selectApp)
+    const socketChannel = yield call(createSocketChannel, socket, data)
 
-  yield takeLatest(closeSocketAction, function () {
-    socketChannel.close()
-    socket.close()
-  })
+    yield takeLatest(sendMessageAction, function ({ payload }) {
+      socket.emit('createMessage', {
+        from: 'User',
+        text: payload.message,
+      })
+    })
 
-  while (true) {
-    try {
-      const channelData = yield take(socketChannel)
-      yield put(channelData)
-    } catch (err) {
-      console.error(`Socket error => ${err}`)
+    yield takeLatest(closeSocketAction, function () {
+      socketChannel.close()
+      socket.close()
+    })
+
+    while (true) {
+      try {
+        const channelData = yield take(socketChannel)
+        yield put(channelData)
+      } catch (err) {
+        console.error(`Socket error => ${err}`)
+      }
     }
+  } catch (e) {
+    console.error(`Initital error => ${e}`)
   }
 }
 
 export default function* chatSaga() {
-  yield takeLatest(initSocketAction, initActionSaga)
+  yield takeLatest(initSocketAction, initSocketSaga)
 }

@@ -3,7 +3,7 @@ import './style.scss'
 import { useDispatch } from 'react-redux'
 import { logInAction } from 'redux/action'
 
-export default function Login(props) {
+export default function Login() {
   const dispatch = useDispatch()
   const [form, setForm] = useState({
     room: '',
@@ -14,7 +14,9 @@ export default function Login(props) {
     setForm((prev) => ({ ...prev, [e.target?.name]: e.target?.value }))
   }
 
-  const hdSubmit = () => {
+  const hdSubmit = (e) => {
+    e.preventDefault()
+
     dispatch(logInAction({ ...form }))
   }
 
