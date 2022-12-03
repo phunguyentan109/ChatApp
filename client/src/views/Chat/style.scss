@@ -14,22 +14,36 @@
   background: linear-gradient(325deg, rgba(39,107,130,1) 0%, rgba(49,84,129,1) 100%); /* w3c */
 }
 
-.chat__sidebar h3 {
-  color: #e6eaee;
-  margin: 10px 20px;
-  text-align: left;
-}
+.chat__sidebar {
+  h3 {
+    color: #e6eaee;
+    margin: 10px 20px;
+    text-align: left;
+  }
 
-.chat__sidebar ul {
-  list-style-type: none;
-}
+  ul {
+    list-style-type: none;
+  }
 
-.chat__sidebar li {
-  background: #e6eaee;
-  border: 1px solid #e1e1e1;
-  border-radius: 5px;
-  padding: 10px;
-  margin: 10px;
+  li {
+    background: #e6eaee;
+    border: 1px solid #e1e1e1;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+  }
+
+  .bottom {
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    button {
+      background-color: rgba(255, 255, 255, 0.23);
+      border-radius: 5px;
+      display: block;
+    }
+  }
 }
 
 .chat__main {

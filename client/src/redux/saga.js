@@ -1,5 +1,5 @@
 import { all, put, takeLatest, call } from 'redux-saga/effects'
-import { logInAction } from './action'
+import { logInAction, logOutAction } from './action'
 import { SESSION_AUTH } from 'const'
 import { join } from './store'
 import chatSaga from 'views/Chat/slice/saga'
@@ -22,7 +22,7 @@ function* logInActionSaga({ payload }) {
     let rs = yield call(
       fetchApi,
       'POST',
-      'http://localhost:8080/login',
+      `${process.env.REACT_APP_REST_API}/login`,
       payload
     )
 
@@ -36,9 +36,15 @@ function* logInActionSaga({ payload }) {
   }
 }
 
+function* logOutSaga() {
+  sessionStorage.removeItem(SESSION_AUTH)
+  yield put(join())
+}
+
 export default function* rootSaga() {
   // App saga
   yield takeLatest(logInAction, logInActionSaga)
+  yield takeLatest(logOutAction, logOutSaga)
 
   // View saga
   yield all([chatSaga()])

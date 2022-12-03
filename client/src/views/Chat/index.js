@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { initSocketAction, sendMessageAction } from './slice/action'
 import { selectMessages } from './slice/selector'
 import { format } from 'date-fns'
+import { logOutAction } from 'redux/action'
 
 export default function Chat() {
   const dispatch = useDispatch()
@@ -24,19 +25,31 @@ export default function Chat() {
     }
   }
 
+  const hdSignOut = () => {
+    dispatch(logOutAction())
+  }
+
   return (
     <div className='chat'>
       <div className='chat__sidebar'>
-        <h3>People</h3>
-        <div id='users'>
-          {users.map((u) => (
-            <li key={u}>{u}</li>
-          ))}
+        <div>
+          <h3>People</h3>
+          <div id='users'>
+            <ol>
+              {users.map((u) => (
+                <li key={u}>{u}</li>
+              ))}
+            </ol>
+          </div>
+        </div>
+
+        <div className='bottom'>
+          <button onClick={hdSignOut}>Sign Out</button>
         </div>
       </div>
 
       <div className='chat__main'>
-        <ol id='messages' className='chat__messages'>
+        <ol className='chat__messages'>
           {messages.map((ms) => (
             <li key={ms.createdAt} className='message'>
               <div className='message__title'>
