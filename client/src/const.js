@@ -28,3 +28,8 @@ export const allRouters = [
     permission: ROUTE_PERMISSION.about,
   },
 ]
+
+export const env = {
+  restApi: process.env.REACT_APP_REST_API,
+  socketApi: process.env.REACT_APP_SOCKET_API,
+}

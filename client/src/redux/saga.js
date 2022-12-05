@@ -1,6 +1,6 @@
 import { all, put, takeLatest, call } from 'redux-saga/effects'
 import { logInAction, logOutAction } from './action'
-import { SESSION_AUTH } from 'const'
+import { env, SESSION_AUTH } from 'const'
 import { join } from './store'
 import chatSaga from 'views/Chat/slice/saga'
 
@@ -19,12 +19,7 @@ function fetchApi(method, url, body) {
 
 function* logInActionSaga({ payload }) {
   try {
-    let rs = yield call(
-      fetchApi,
-      'POST',
-      `${process.env.REACT_APP_REST_API}/login`,
-      payload
-    )
+    let rs = yield call(fetchApi, 'POST', `${env.restApi}login`, payload)
 
     sessionStorage.setItem(SESSION_AUTH, JSON.stringify(rs))
 

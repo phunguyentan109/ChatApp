@@ -20,6 +20,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build-stg": "REACT_APP_REST_API=/ REACT_APP_SOCKET_API= react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import './style.scss'
 import { useDispatch, useSelector } from 'react-redux'
-import { initSocketAction, sendMessageAction } from './slice/action'
+import {
+  closeSocketAction,
+  initSocketAction,
+  sendMessageAction,
+} from './slice/action'
 import { selectMessages } from './slice/selector'
 import { format } from 'date-fns'
 import { logOutAction } from 'redux/action'
@@ -14,6 +18,10 @@ export default function Chat() {
 
   useEffect(() => {
     dispatch(initSocketAction())
+
+    return () => {
+      dispatch(closeSocketAction())
+    }
   }, [dispatch])
 
   const hdSubmit = (e) => {

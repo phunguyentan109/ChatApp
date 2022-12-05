@@ -7,22 +7,27 @@ const { Users } = require("./utils/users");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const path = require("path");
+
+const users = new Users();
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(
+  server,
+  process.env.MODE === "stg"
+    ? undefined
+    : {
+        cors: {
+          origin: "http://localhost:3000",
+        },
+      }
+);
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
-
-app.use(express.static(__dirname + "/public"));
-
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:3000",
-  },
-});
-
-const users = new Users();
+app.use(express.static(__dirname + "/build"));
 
 io.on("connection", (socket) => {
   socket.on("join", (params) => {
@@ -88,6 +93,10 @@ app.post("/login", (req, res) => {
   return res
     .status(200)
     .json({ name, room, roles: { "perm.chat": true, "perm.about": true } });
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname + "/build/index.html"));
 });
 
 server.listen(port, () => console.log(`Server is running on port ${port}`));
